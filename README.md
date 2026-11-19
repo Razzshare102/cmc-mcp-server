@@ -214,6 +214,10 @@ python scripts/verify_tools.py
   The server keeps the largest-market-cap entry per symbol.
 - `trending/gainers-losers` is keyed-only, so the keyless `find_movers`
   derives movers from listings instead — same answer, one extra sort.
+  Even with a key the endpoint is plan-gated: a free Basic key is refused
+  with error 1006 ("plan doesn't support this endpoint", verified
+  19 Nov 2026), so `find_movers` stays the reliable fallback until the
+  plan is upgraded — the hackathon Startup tier should unlock it.
 
 ## License
 
