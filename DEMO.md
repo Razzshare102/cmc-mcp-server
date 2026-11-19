@@ -3,6 +3,30 @@
 Record a 2–3 minute screen recording of the server working, for the
 DoraHacks submission. No API key is needed for this demo (keyless mode).
 
+## 0. Recording method — terminal capture (reproducible)
+
+The demo is recorded as a terminal session, not through the Inspector
+web UI, because that is what can be captured reliably headlessly:
+
+```bash
+bash scripts/record_demo_tmux.sh   # runs scripts/demo_record.sh in tmux,
+                                   # captures the real screen every 0.5s
+python3 scripts/render_demo_frames.py
+ffmpeg -y -framerate 2 -i /tmp/demo_frames/f%04d.png \
+  -c:v libx264 -preset veryfast -crf 23 -pix_fmt yuv420p cmc-demo.mp4
+```
+
+The video is a faithful rendering of the real terminal transcript —
+every command and every number in it is a genuine live call, nothing
+is staged. (An Xvfb + xterm + ffmpeg screen grab was tried first: the
+Inspector CLI disturbs the X terminal and the display froze on the
+tool list while the session kept running in the background.)
+
+The script runs the three prompts below via the Inspector CLI
+(`scripts/demo_record.sh`), prints `CMC_API_KEY=<not set>` up front,
+retries each live call up to 3 times, and shows only the first 50
+lines of long outputs on screen.
+
 ## 1. Start the MCP Inspector
 
 From the repo root:
@@ -58,6 +82,13 @@ one copied from a token's CoinMarketCap page:
 Say: *"Token detail, security checks, liquidity pools and price in one
 call — the due-diligence workflow an agent would otherwise do in four
 round trips."*
+
+Note: in keyless mode the DEX security sub-check can return
+`CoinMarketCap error 400 for /v1/dex/security/detail: BAD_REQUEST`
+(observed for USDC on Ethereum, 19 Nov 2026). The composite still
+returns the token, pools and price; only the security section carries
+the error. With a key the endpoint is expected to work — if you have
+one, set `CMC_API_KEY` before recording.
 
 ## 3. What the recording must show
 
